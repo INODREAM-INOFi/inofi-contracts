@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 import "./libraries/ERC20.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
+import "./libraries/ReentrancyGuard.sol";
 
-contract Stake is ERC20 {
+contract Stake is ERC20, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IERC20 public fon;
@@ -29,7 +30,7 @@ contract Stake is ERC20 {
         fon = IERC20(newFON);
     }
 
-    function stake(uint amount) external {
+    function stake(uint amount) external nonReentrant {
         uint totalBalance = fon.balanceOf(address(this));
         uint shares = totalBalance * totalSupply() == 0
         ? amount
@@ -41,7 +42,7 @@ contract Stake is ERC20 {
         emit Staked(msg.sender, amount, shares);
     }
 
-    function unstake(uint shares) external {
+    function unstake(uint shares) external nonReentrant {
         uint amount = shares * fon.balanceOf(address(this)) / totalSupply();
 
         _burn(msg.sender, shares);

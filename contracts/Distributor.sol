@@ -5,8 +5,9 @@ import "./interfaces/IERC20.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IWETH.sol";
+import "./libraries/ReentrancyGuard.sol";
 
-contract Distributor {
+contract Distributor is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address public immutable weth;
@@ -149,7 +150,7 @@ contract Distributor {
         return user.depositAmount * rewardRate / 1e18 - user.debt;
     }
 
-    function deposit(uint idx, uint amount) external payable {
+    function deposit(uint idx, uint amount) external payable nonReentrant {
         require(idx < rewardPools.length, "FON: pool");
 
         userInfo storage user = userInfos[msg.sender][idx];
@@ -175,7 +176,7 @@ contract Distributor {
         emit Deposit(msg.sender, idx, amount);
     }
 
-    function withdraw(uint idx, uint amount) external {
+    function withdraw(uint idx, uint amount) external nonReentrant {
         require(idx < rewardPools.length, "FON: pool");
 
         userInfo storage user = userInfos[msg.sender][idx];

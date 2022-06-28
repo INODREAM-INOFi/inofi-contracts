@@ -6,8 +6,9 @@ import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
 import "./interfaces/IERC721Receiver.sol";
+import "./libraries/ReentrancyGuard.sol";
 
-contract Ticket is IERC721Receiver {
+contract Ticket is IERC721Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     bytes4 internal constant ON_ERC721_RECEIVED = 0x150b7a02;
@@ -37,7 +38,7 @@ contract Ticket is IERC721Receiver {
         uint ticketId,
         uint startTokenId,
         uint[] memory prices
-    ) external {
+    ) external nonReentrant {
         require(fon.minters(msg.sender), "FON: minters");
         require(!ticketIds[ticketId], "FON: ticket id");
         ticketIds[ticketId] = true;
@@ -59,7 +60,7 @@ contract Ticket is IERC721Receiver {
         );
     }
 
-    function buy(uint ticketId, uint tokenId) external {
+    function buy(uint ticketId, uint tokenId) external nonReentrant {
         uint price = ticketPrices[ticketId][tokenId];
         require(price > 0, "FON: sold out");
         delete ticketPrices[ticketId][tokenId];

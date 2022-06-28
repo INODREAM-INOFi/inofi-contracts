@@ -7,8 +7,9 @@ import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
 import "./interfaces/IERC721Receiver.sol";
+import "./libraries/ReentrancyGuard.sol";
 
-contract Auction is IERC721Receiver {
+contract Auction is IERC721Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     bytes4 internal constant ON_ERC721_RECEIVED = 0x150b7a02;
@@ -68,7 +69,7 @@ contract Auction is IERC721Receiver {
         uint tokenId,
         uint endBlock,
         uint minimumBidAmount
-    ) external {
+    ) external nonReentrant {
         require(fon.auctionMinters(msg.sender), "FON: auction minter");
         require(endBlock > block.number, "FON: end block");
 
@@ -105,7 +106,7 @@ contract Auction is IERC721Receiver {
         uint tokenId,
         uint endBlock,
         uint minimumBidAmount
-    ) external {
+    ) external nonReentrant {
         require(fon.allowed721(nftAddress), "FON: not allowed");
         require(endBlock > block.number, "FON: end block");
 
@@ -134,7 +135,7 @@ contract Auction is IERC721Receiver {
         );
     }
 
-    function bid(uint auctionId, uint bidAmount) external {
+    function bid(uint auctionId, uint bidAmount) external nonReentrant {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender != auctionInfo.beneficiary, "FON: beneficiary");
         require(block.number < auctionInfo.endBlock, "FON: over");
@@ -158,7 +159,7 @@ contract Auction is IERC721Receiver {
         );
     }
 
-    function claim(uint auctionId) external {
+    function claim(uint auctionId) external nonReentrant {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender != auctionInfo.beneficiary, "FON: beneficiary");
         require(bidAmounts[msg.sender][auctionId] > 0, "FON: only once");
@@ -183,7 +184,7 @@ contract Auction is IERC721Receiver {
         );
     }
 
-    function claimBeneficiary(uint auctionId) external {
+    function claimBeneficiary(uint auctionId) external nonReentrant {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender == auctionInfo.beneficiary, "FON: beneficiary");
         require(block.number >= auctionInfo.endBlock, "FON: not over");

@@ -7,8 +7,9 @@ import "./interfaces/IERC721.sol";
 import "./FON20.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IERC721Receiver.sol";
+import "./libraries/ReentrancyGuard.sol";
 
-contract FON721Maker is IERC721Receiver {
+contract FON721Maker is IERC721Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IFON public fon;
@@ -76,7 +77,7 @@ contract FON721Maker is IERC721Receiver {
         uint endBlock,
         address[] memory holders,
         uint[] memory holderPercentages
-    ) external payable {
+    ) external payable nonReentrant {
         {
             require(fon.allowed721(nftAddress), "FON: not allowed");
             require(endBlock > block.number, "FON: offering block");
@@ -129,7 +130,7 @@ contract FON721Maker is IERC721Receiver {
         );
     }
 
-    function buy(address fon20, uint fonAmount) external {
+    function buy(address fon20, uint fonAmount) external nonReentrant {
         NFTInfo storage nftInfo = FON20ToNft[fon20];
         require(block.number < nftInfo.endBlock, "FON: over");
 
@@ -158,7 +159,7 @@ contract FON721Maker is IERC721Receiver {
     }
 
 
-    function claim(address fon20) external {
+    function claim(address fon20) external nonReentrant {
         NFTInfo storage nftInfo = FON20ToNft[fon20];
         require(block.number >= nftInfo.endBlock, "FON: not over");
 
@@ -185,7 +186,7 @@ contract FON721Maker is IERC721Receiver {
         address fon20,
         address from,
         address to
-    ) external {
+    ) external nonReentrant {
         IERC20 iFON20 = IERC20(fon20);
         require(
             iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.ownPercentage() / 1e18,
@@ -199,7 +200,7 @@ contract FON721Maker is IERC721Receiver {
         );
     }
 
-    function exit(address fon20) external {
+    function exit(address fon20) external nonReentrant {
         IERC20 iFON20 = IERC20(fon20);
         require(
             iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.exitPercentage() / 1e18,
