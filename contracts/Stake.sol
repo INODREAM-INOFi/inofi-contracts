@@ -34,8 +34,8 @@ contract Stake is ERC20, ReentrancyGuard {
     function stake(uint amount) external nonReentrant {
         uint totalBalance = fon.balanceOf(address(this));
         uint shares = totalBalance * totalSupply() == 0
-        ? amount
-        : amount * totalSupply() / totalBalance;
+            ? amount
+            : amount * totalSupply() / totalBalance;
 
         _mint(msg.sender, shares);
         fon.safeTransferFrom(msg.sender, address(this), amount);

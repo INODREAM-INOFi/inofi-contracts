@@ -82,8 +82,8 @@ contract Distributor is ReentrancyGuard {
         for(uint i = 1; i < 11; i++) {
             tokenPerBlock[i - 1] = distributingAmountsPerYear[i - 1] / newBlocksPerYear;
             totalAmountUntilBonus[i] = totalAmountUntilBonus[i - 1]
-            + tokenPerBlock[i - 1]
-            * newBlocksPerYear;
+                + tokenPerBlock[i - 1]
+                * newBlocksPerYear;
             blocksPassed[i] = newBlocksPerYear * i;
         }
     }
@@ -124,12 +124,12 @@ contract Distributor is ReentrancyGuard {
         if(periodIdx > 10) periodIdx = 10;
 
         return totalAmountUntilBonus[periodIdx]
-        + ((period - blocksPassed[periodIdx]) * tokenPerBlock[periodIdx]);
+            + ((period - blocksPassed[periodIdx]) * tokenPerBlock[periodIdx]);
     }
 
     function rewardPerPeriod(uint fromBlock, uint toBlock) public view returns (uint) {
         return getTotalReward(getBlockInPeriod(toBlock))
-        - getTotalReward(getBlockInPeriod(fromBlock));
+            - getTotalReward(getBlockInPeriod(fromBlock));
     }
 
     function getBlockInPeriod(uint blockNumber) public view returns (uint) {
@@ -144,10 +144,10 @@ contract Distributor is ReentrancyGuard {
         uint rewardRate = pool.rewardRate;
         if (block.number > pool.lastBlock && pool.totalBalance != 0) {
             rewardRate += rewardPerPeriod(pool.lastBlock, block.number)
-            * pool.weight
-            * 1e18
-            / totalWeight
-            / pool.totalBalance;
+                * pool.weight
+                * 1e18
+                / totalWeight
+                / pool.totalBalance;
         }
         return user.depositAmount * rewardRate / 1e18 - user.debt;
     }
@@ -215,8 +215,8 @@ contract Distributor is ReentrancyGuard {
         }
 
         uint rewardPerPool = rewardPerPeriod(pool.lastBlock, block.number)
-        * pool.weight
-        / totalWeight;
+            * pool.weight
+            / totalWeight;
 
         pool.rewardRate += rewardPerPool * 1e18 / pool.totalBalance;
         pool.lastBlock = currentBlock;
@@ -229,9 +229,9 @@ contract Distributor is ReentrancyGuard {
         update(idx);
 
         uint reward = user.depositAmount
-        * rewardPools[idx].rewardRate
-        / 1e18
-        - user.debt;
+            * rewardPools[idx].rewardRate
+            / 1e18
+            - user.debt;
 
         if(reward > 0) {
             uint rewardFee = reward * fon.stakeFeePercentage() / 1e18;

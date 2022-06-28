@@ -99,9 +99,9 @@ contract FON721 is ERC721Enumerable {
         require(
             from == address(0)
             || !isShared[tokenId]
-        || canTransfer[tokenId][address(0)][address(0)]
-        || canTransfer[tokenId][from][address(0)]
-        || canTransfer[tokenId][from][to],
+            || canTransfer[tokenId][address(0)][address(0)]
+            || canTransfer[tokenId][from][address(0)]
+            || canTransfer[tokenId][from][to],
             "FON: not allowed transfer"
         );
     }

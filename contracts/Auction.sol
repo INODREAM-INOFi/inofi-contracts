@@ -196,8 +196,8 @@ contract Auction is IERC721Receiver, ReentrancyGuard {
         if(auctionInfo.highestBidder != address(0)) {
             uint feeAmount = fon.auctionFeePercentage() * auctionInfo.highestBidAmount / 1e18;
             uint auctionMinterFeeAmount = fon.auctionMinters(auctionInfo.beneficiary)
-            ? fon.auctionMinterFeePercentage() * auctionInfo.highestBidAmount / 1e18
-            : 0;
+                ? fon.auctionMinterFeePercentage() * auctionInfo.highestBidAmount / 1e18
+                : 0;
 
             IERC20 iFON = IERC20(address(fon));
             iFON.safeTransfer(fon.stake(), feeAmount);

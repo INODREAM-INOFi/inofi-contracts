@@ -75,7 +75,7 @@ contract FON721Maker is IERC721Receiver, ReentrancyGuard {
         uint totalSupply,
         uint offeringPercentage,
         uint offeringPrice,
-        uint endBlock,
+        uint32 endBlock,
         address[] memory holders,
         uint[] memory holderPercentages
     ) external payable nonReentrant {
@@ -106,7 +106,7 @@ contract FON721Maker is IERC721Receiver, ReentrancyGuard {
             tokenId,
             newFON721TokenId,
             msg.sender,
-            safe32(endBlock),
+            endBlock,
             safe112(offeringAmount),
             safe112(totalSupply),
             safe112(offeringPrice),
@@ -234,17 +234,13 @@ contract FON721Maker is IERC721Receiver, ReentrancyGuard {
     }
 
     function receiveNFTFee() external {
-        payable(fon.receiver()).transfer(address(this).balance);
+        (bool success, ) = payable(fon.receiver()).call{ value: address(this).balance }("");
+        require(success, "FON: unable to send value");
     }
 
     function safe112(uint amount) internal pure returns (uint112) {
         require(amount < 2**112, "FON: 112");
         return uint112(amount);
-    }
-
-    function safe32(uint amount) internal pure returns (uint32) {
-        require(amount < 2**32, "FON: 32");
-        return uint32(amount);
     }
 
     function onERC721Received(
