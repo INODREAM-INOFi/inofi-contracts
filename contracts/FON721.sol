@@ -33,6 +33,7 @@ contract FON721 is ERC721Enumerable {
         string memory symbol,
         string memory baseURI
     ) ERC721(name, symbol) {
+        require(newFON != address(0), "FON: zero address");
         fon = IFON(newFON);
 
         nextTokenId = 1;

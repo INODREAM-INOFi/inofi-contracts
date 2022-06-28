@@ -63,6 +63,7 @@ contract FON721Maker is IERC721Receiver, ReentrancyGuard {
     );
 
     constructor(address newFON) {
+        require(newFON != address(0), "FON: zero address");
         fon = IFON(newFON);
     }
 
@@ -84,6 +85,7 @@ contract FON721Maker is IERC721Receiver, ReentrancyGuard {
             require(msg.value == fon.fon721Fee(), "FON: FON721 fee");
             uint totalHolderPercentage;
             for(uint i = 0; i<holders.length; i++) {
+                require(holders[i] != address(0), "FON: zero address");
                 totalHolderPercentage += holderPercentages[i];
             }
             require(totalHolderPercentage + offeringPercentage <= 1e18, "FON: holders");

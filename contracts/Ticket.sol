@@ -31,6 +31,7 @@ contract Ticket is IERC721Receiver, ReentrancyGuard {
     );
 
     constructor (address newFON) {
+        require(newFON != address(0), "FON: zero address");
         fon = IFON(newFON);
     }
 

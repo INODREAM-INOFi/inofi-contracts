@@ -54,6 +54,7 @@ contract FON is ERC20 {
         uint newAuctionMinterFeePercentage,
         uint newFON721Fee
     ) ERC20(name, symbol) {
+        require(newAdmin != address(0) && newReceiver != address(0), "FON: zero address");
         admin = newAdmin;
         receiver = newReceiver;
 
@@ -119,6 +120,7 @@ contract FON is ERC20 {
 
     function setAuctionMinter(address newAuctionMinter) external {
         require(msg.sender == admin, "FON: admin");
+        require(newAuctionMinter != address(0), "FON: zero address");
 
         auctionMinters[newAuctionMinter] = !auctionMinters[newAuctionMinter];
 
@@ -144,6 +146,7 @@ contract FON is ERC20 {
 
     function setAdmin(address newAdmin) external {
         require(msg.sender == admin, "FON: admin");
+        require(newAdmin != address(0), "FON: zero address");
         admin = newAdmin;
 
         emit NewAdmin(admin);
@@ -151,6 +154,7 @@ contract FON is ERC20 {
 
     function setReceiver(address newReceiver) external {
         require(msg.sender == admin, "FON: admin");
+        require(newReceiver != address(0), "FON: zero address");
         receiver = newReceiver;
 
         emit NewReceiver(receiver);
@@ -158,6 +162,7 @@ contract FON is ERC20 {
 
     function setFON721Maker(address newFON721Maker) external {
         require(msg.sender == admin, "FON: admin");
+        require(newFON721Maker != address(0), "FON: zero address");
 
         setMinter(fon721maker);
         fon721maker = newFON721Maker;
@@ -168,6 +173,7 @@ contract FON is ERC20 {
 
     function setStake(address newStake) external {
         require(msg.sender == admin, "FON: admin");
+        require(newStake != address(0), "FON: zero address");
         stake = newStake;
 
         emit NewStake(stake);
@@ -175,6 +181,7 @@ contract FON is ERC20 {
 
     function setDistributor(address newDistributor) external {
         require(msg.sender == admin, "FON: admin");
+        require(newDistributor != address(0), "FON: zero address");
 
         setMinter(distributor);
         distributor = newDistributor;
@@ -185,6 +192,7 @@ contract FON is ERC20 {
 
     function setFON721(address newFON721) external {
         require(msg.sender == admin, "FON: admin");
+        require(newFON721 != address(0), "FON: zero address");
 
         setAllowed721(fon721);
         fon721 = newFON721;
@@ -195,6 +203,7 @@ contract FON is ERC20 {
 
     function setAuction(address newAuction) external {
         require(msg.sender == admin, "FON: admin");
+        require(newAuction != address(0), "FON: zero address");
 
         setMinter(auction);
         auction = newAuction;
@@ -205,6 +214,7 @@ contract FON is ERC20 {
 
     function setTicket(address newTicket) external {
         require(msg.sender == admin, "FON: admin");
+        require(newTicket != address(0), "FON: zero address");
 
         setMinter(ticket);
         ticket = newTicket;

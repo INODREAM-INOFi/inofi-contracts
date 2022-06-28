@@ -50,6 +50,7 @@ contract Auction is IERC721Receiver, ReentrancyGuard {
     event ClaimBeneficiary(uint indexed auctionId);
 
     constructor (address newFON) {
+        require(newFON != address(0), "FON: zero address");
         fon = IFON(newFON);
 
         auctionInfos.push(
@@ -109,6 +110,7 @@ contract Auction is IERC721Receiver, ReentrancyGuard {
     ) external nonReentrant {
         require(fon.allowed721(nftAddress), "FON: not allowed");
         require(endBlock > block.number, "FON: end block");
+        require(beneficiary != address(0), "FON: zero address");
 
         IERC721 nft = IERC721(nftAddress);
         nft.safeTransferFrom(msg.sender, address(this), tokenId);

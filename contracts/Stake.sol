@@ -27,6 +27,7 @@ contract Stake is ERC20, ReentrancyGuard {
         string memory _name,
         string memory _symbol
     ) ERC20(_name, _symbol) {
+        require(newFON != address(0), "FON: zero address");
         fon = IERC20(newFON);
     }
 

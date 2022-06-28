@@ -72,6 +72,7 @@ contract Distributor is ReentrancyGuard {
         uint newBlocksPerYear,
         uint[10] memory distributingAmountsPerYear
     ) {
+        require(newFON != address(0) && newWETH != address(0), "FON: zero address");
         fon = IFON(newFON);
         weth = newWETH;
         blocksPerYear = newBlocksPerYear;
@@ -89,6 +90,7 @@ contract Distributor is ReentrancyGuard {
 
     function addRewardPool(address token, uint weight) external {
         require(msg.sender == fon.admin(), "FON: admin");
+        require(token != address(0), "FON: zero address");
         for (uint i = 0; i < rewardPools.length; i++) {
             update(i);
         }
