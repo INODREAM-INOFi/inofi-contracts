@@ -65,7 +65,7 @@ contract FON is ERC20 {
         fon721Fee = newFON721Fee;
     }
 
-    function setOwnPercentage(uint newOwnPercentage) public {
+    function setOwnPercentage(uint newOwnPercentage) external {
         require(msg.sender == admin, "FON: admin");
         require(
             newOwnPercentage > 0.5e18 && newOwnPercentage < exitPercentage,
@@ -77,7 +77,7 @@ contract FON is ERC20 {
         emit NewOwnPercentage(ownPercentage);
     }
 
-    function setStakeFeePercentage(uint newStakeFeePercentage) public {
+    function setStakeFeePercentage(uint newStakeFeePercentage) external {
         require(msg.sender == admin, "FON: admin");
 
         stakeFeePercentage = newStakeFeePercentage;
@@ -85,7 +85,7 @@ contract FON is ERC20 {
         emit NewStakeFeePercentage(stakeFeePercentage);
     }
 
-    function setAuctionFeePercentage(uint newAuctionFeePercentage) public {
+    function setAuctionFeePercentage(uint newAuctionFeePercentage) external {
         require(msg.sender == admin, "FON: admin");
 
         auctionFeePercentage = newAuctionFeePercentage;
@@ -93,7 +93,7 @@ contract FON is ERC20 {
         emit NewAuctionFeePercentage(auctionFeePercentage);
     }
 
-    function setAuctionMinterFeePercentage(uint newAuctionMinterFeePercentage) public {
+    function setAuctionMinterFeePercentage(uint newAuctionMinterFeePercentage) external {
         require(msg.sender == admin, "FON: admin");
 
         auctionMinterFeePercentage = newAuctionMinterFeePercentage;
@@ -101,7 +101,7 @@ contract FON is ERC20 {
         emit NewAuctionMinterFeePercentage(auctionMinterFeePercentage);
     }
 
-    function setFON721Fee(uint newFON721Fee) public {
+    function setFON721Fee(uint newFON721Fee) external {
         require(msg.sender == admin, "FON: admin");
 
         fon721Fee = newFON721Fee;
@@ -117,7 +117,7 @@ contract FON is ERC20 {
         emit NewMinter(minterAddress, minters[minterAddress]);
     }
 
-    function setAuctionMinter(address newAuctionMinter) public {
+    function setAuctionMinter(address newAuctionMinter) external {
         require(msg.sender == admin, "FON: admin");
 
         auctionMinters[newAuctionMinter] = !auctionMinters[newAuctionMinter];
@@ -133,7 +133,7 @@ contract FON is ERC20 {
         emit NewAllowed721(allowed721Address, allowed721[allowed721Address]);
     }
 
-    function setExitPercentage(uint newExitPercentage) public {
+    function setExitPercentage(uint newExitPercentage) external {
         require(msg.sender == admin, "FON: admin");
         require(newExitPercentage > ownPercentage, "FON: exit percentage");
 
@@ -142,21 +142,21 @@ contract FON is ERC20 {
         emit NewExitPercentage(exitPercentage);
     }
 
-    function setAdmin(address newAdmin) public {
+    function setAdmin(address newAdmin) external {
         require(msg.sender == admin, "FON: admin");
         admin = newAdmin;
 
         emit NewAdmin(admin);
     }
 
-    function setReceiver(address newReceiver) public {
+    function setReceiver(address newReceiver) external {
         require(msg.sender == admin, "FON: admin");
         receiver = newReceiver;
 
         emit NewReceiver(receiver);
     }
 
-    function setFON721Maker(address newFON721Maker) public {
+    function setFON721Maker(address newFON721Maker) external {
         require(msg.sender == admin, "FON: admin");
 
         setMinter(fon721maker);
@@ -166,14 +166,14 @@ contract FON is ERC20 {
         emit NewFON721Maker(fon721maker);
     }
 
-    function setStake(address newStake) public {
+    function setStake(address newStake) external {
         require(msg.sender == admin, "FON: admin");
         stake = newStake;
 
         emit NewStake(stake);
     }
 
-    function setDistributor(address newDistributor) public {
+    function setDistributor(address newDistributor) external {
         require(msg.sender == admin, "FON: admin");
 
         setMinter(distributor);
@@ -183,7 +183,7 @@ contract FON is ERC20 {
         emit NewDistributor(distributor);
     }
 
-    function setFON721(address newFON721) public {
+    function setFON721(address newFON721) external {
         require(msg.sender == admin, "FON: admin");
 
         setAllowed721(fon721);
@@ -193,7 +193,7 @@ contract FON is ERC20 {
         emit NewFON721(fon721);
     }
 
-    function setAuction(address newAuction) public {
+    function setAuction(address newAuction) external {
         require(msg.sender == admin, "FON: admin");
 
         setMinter(auction);
@@ -203,7 +203,7 @@ contract FON is ERC20 {
         emit NewAuction(auction);
     }
 
-    function setTicket(address newTicket) public {
+    function setTicket(address newTicket) external {
         require(msg.sender == admin, "FON: admin");
 
         setMinter(ticket);
@@ -213,7 +213,7 @@ contract FON is ERC20 {
         emit NewTicket(ticket);
     }
 
-    function mint(address to, uint amount) public {
+    function mint(address to, uint amount) external {
         require(minters[msg.sender], "FON: minter");
         _mint(to, amount);
     }

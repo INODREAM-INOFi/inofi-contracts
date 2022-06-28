@@ -5,7 +5,6 @@ import "./interfaces/IFON.sol";
 import "./libraries/ERC721Enumerable.sol";
 
 contract FON721 is ERC721Enumerable {
-
     IFON public fon;
 
     string public currentBaseURI;
@@ -38,29 +37,29 @@ contract FON721 is ERC721Enumerable {
         currentBaseURI = baseURI;
     }
 
-    function mint(address account, uint tokenId) public {
+    function mint(address account, uint tokenId) external {
         require(fon.minters(msg.sender), "FON: minter");
         _safeMint(account, tokenId);
     }
 
-    function mintExact(address account, uint tokenId) public {
+    function mintExact(address account, uint tokenId) external {
         require(fon.minters(msg.sender), "FON: minter");
         require(tokenId == nextTokenId, "FON: not exact token id");
         _safeMint(account, nextTokenId);
         nextTokenId++;
     }
 
-    function burn(uint tokenId) public {
+    function burn(uint tokenId) external {
         require(msg.sender == fon.fon721maker(), "FON: maker");
         _burn(tokenId);
     }
 
-    function addNextTokenId(uint cnt) public {
+    function addNextTokenId(uint cnt) external {
         require(fon.minters(msg.sender), "FON: minter");
         nextTokenId += cnt;
     }
 
-    function setBaseURI(string memory newBaseURI) public {
+    function setBaseURI(string memory newBaseURI) external {
         require(msg.sender == fon.admin(), "FON: admin");
         currentBaseURI = newBaseURI;
     }
@@ -69,7 +68,7 @@ contract FON721 is ERC721Enumerable {
         return currentBaseURI;
     }
 
-    function setIsShared(uint tokenId) public {
+    function setIsShared(uint tokenId) external {
         require(msg.sender == fon.fon721maker(), "FON: maker");
         isShared[tokenId] = !isShared[tokenId];
 
@@ -79,7 +78,7 @@ contract FON721 is ERC721Enumerable {
         );
     }
 
-    function setCanTransfer(uint tokenId, address from, address to) public {
+    function setCanTransfer(uint tokenId, address from, address to) external {
         require(msg.sender == fon.fon721maker(), "FON: maker");
         canTransfer[tokenId][from][to] = !canTransfer[tokenId][from][to];
 

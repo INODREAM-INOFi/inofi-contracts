@@ -36,7 +36,7 @@ contract Ticket {
         uint ticketId,
         uint startTokenId,
         uint[] memory prices
-    ) public {
+    ) external {
         require(fon.minters(msg.sender), "FON: minters");
         require(!ticketIds[ticketId], "FON: ticket id");
         ticketIds[ticketId] = true;
@@ -58,7 +58,7 @@ contract Ticket {
         );
     }
 
-    function buy(uint ticketId, uint tokenId) public {
+    function buy(uint ticketId, uint tokenId) external {
         uint price = ticketPrices[ticketId][tokenId];
         require(price > 0, "FON: sold out");
         delete ticketPrices[ticketId][tokenId];

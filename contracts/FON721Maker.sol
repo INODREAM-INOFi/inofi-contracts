@@ -75,7 +75,7 @@ contract FON721Maker {
         uint endBlock,
         address[] memory holders,
         uint[] memory holderPercentages
-    ) public payable {
+    ) external payable {
         {
             require(fon.allowed721(nftAddress), "FON: not allowed");
             require(endBlock > block.number, "FON: offering block");
@@ -128,7 +128,7 @@ contract FON721Maker {
         );
     }
 
-    function buy(address fon20, uint fonAmount) public {
+    function buy(address fon20, uint fonAmount) external {
         NFTInfo storage nftInfo = FON20ToNft[fon20];
         require(block.number < nftInfo.endBlock, "FON: over");
 
@@ -157,7 +157,7 @@ contract FON721Maker {
     }
 
 
-    function claim(address fon20) public {
+    function claim(address fon20) external {
         NFTInfo storage nftInfo = FON20ToNft[fon20];
         require(block.number >= nftInfo.endBlock, "FON: not over");
 
@@ -184,7 +184,7 @@ contract FON721Maker {
         address fon20,
         address from,
         address to
-    ) public {
+    ) external {
         IERC20 iFON20 = IERC20(fon20);
         require(
             iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.ownPercentage() / 1e18,
@@ -198,7 +198,7 @@ contract FON721Maker {
         );
     }
 
-    function exit(address fon20) public {
+    function exit(address fon20) external {
         IERC20 iFON20 = IERC20(fon20);
         require(
             iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.exitPercentage() / 1e18,
@@ -229,7 +229,7 @@ contract FON721Maker {
         );
     }
 
-    function receiveNFTFee() public {
+    function receiveNFTFee() external {
         payable(fon.receiver()).transfer(address(this).balance);
     }
 

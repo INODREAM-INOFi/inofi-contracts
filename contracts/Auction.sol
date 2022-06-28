@@ -67,7 +67,7 @@ contract Auction {
         uint tokenId,
         uint endBlock,
         uint minimumBidAmount
-    ) public {
+    ) external {
         require(fon.auctionMinters(msg.sender), "FON: auction minter");
         require(endBlock > block.number, "FON: end block");
 
@@ -104,7 +104,7 @@ contract Auction {
         uint tokenId,
         uint endBlock,
         uint minimumBidAmount
-    ) public {
+    ) external {
         require(fon.allowed721(nftAddress), "FON: not allowed");
         require(endBlock > block.number, "FON: end block");
 
@@ -133,7 +133,7 @@ contract Auction {
         );
     }
 
-    function bid(uint auctionId, uint bidAmount) public {
+    function bid(uint auctionId, uint bidAmount) external {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender != auctionInfo.beneficiary, "FON: beneficiary");
         require(block.number < auctionInfo.endBlock, "FON: over");
@@ -157,7 +157,7 @@ contract Auction {
         );
     }
 
-    function claim(uint auctionId) public {
+    function claim(uint auctionId) external {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender != auctionInfo.beneficiary, "FON: beneficiary");
         require(bidAmounts[msg.sender][auctionId] > 0, "FON: only once");
@@ -182,7 +182,7 @@ contract Auction {
         );
     }
 
-    function claimBeneficiary(uint auctionId) public {
+    function claimBeneficiary(uint auctionId) external {
         AuctionInfo storage auctionInfo = auctionInfos[auctionId];
         require(msg.sender == auctionInfo.beneficiary, "FON: beneficiary");
         require(block.number >= auctionInfo.endBlock, "FON: not over");
@@ -192,8 +192,8 @@ contract Auction {
         if(auctionInfo.highestBidder != address(0)) {
             uint feeAmount = fon.auctionFeePercentage() * auctionInfo.highestBidAmount / 1e18;
             uint auctionMinterFeeAmount = fon.auctionMinters(auctionInfo.beneficiary)
-                ? fon.auctionMinterFeePercentage() * auctionInfo.highestBidAmount / 1e18
-                : 0;
+            ? fon.auctionMinterFeePercentage() * auctionInfo.highestBidAmount / 1e18
+            : 0;
 
             IERC20 iFON = IERC20(address(fon));
             iFON.safeTransfer(fon.stake(), feeAmount);

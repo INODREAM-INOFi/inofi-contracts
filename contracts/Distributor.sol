@@ -80,13 +80,13 @@ contract Distributor {
         for(uint i = 1; i < 11; i++) {
             tokenPerBlock[i - 1] = distributingAmountsPerYear[i - 1] / newBlocksPerYear;
             totalAmountUntilBonus[i] = totalAmountUntilBonus[i - 1]
-                + tokenPerBlock[i - 1]
-                * newBlocksPerYear;
+            + tokenPerBlock[i - 1]
+            * newBlocksPerYear;
             blocksPassed[i] = newBlocksPerYear * i;
         }
     }
 
-    function addRewardPool(address token, uint weight) public {
+    function addRewardPool(address token, uint weight) external {
         require(msg.sender == fon.admin(), "FON: admin");
         for (uint i = 0; i < rewardPools.length; i++) {
             update(i);
@@ -104,7 +104,7 @@ contract Distributor {
         emit NewRewardPool(rewardPools.length - 1, token, weight);
     }
 
-    function setWeight(uint idx, uint weight) public {
+    function setWeight(uint idx, uint weight) external {
         require(msg.sender == fon.admin(), "FON: admin");
         for (uint i = 0; i < rewardPools.length; i++) {
             update(i);
@@ -121,12 +121,12 @@ contract Distributor {
         if(periodIdx > 10) periodIdx = 10;
 
         return totalAmountUntilBonus[periodIdx]
-            + ((period - blocksPassed[periodIdx]) * tokenPerBlock[periodIdx]);
+        + ((period - blocksPassed[periodIdx]) * tokenPerBlock[periodIdx]);
     }
 
     function rewardPerPeriod(uint fromBlock, uint toBlock) public view returns (uint) {
         return getTotalReward(getBlockInPeriod(toBlock))
-            - getTotalReward(getBlockInPeriod(fromBlock));
+        - getTotalReward(getBlockInPeriod(fromBlock));
     }
 
     function getBlockInPeriod(uint blockNumber) public view returns (uint) {
@@ -134,22 +134,22 @@ contract Distributor {
         return blockNumber > endBlock ? endBlock : blockNumber;
     }
 
-    function rewardAmount(uint idx, address account) public view returns (uint) {
+    function rewardAmount(uint idx, address account) external view returns (uint) {
         poolInfo memory pool = rewardPools[idx];
         userInfo memory user = userInfos[account][idx];
 
         uint rewardRate = pool.rewardRate;
         if (block.number > pool.lastBlock && pool.totalBalance != 0) {
             rewardRate += rewardPerPeriod(pool.lastBlock, block.number)
-                * pool.weight
-                * 1e18
-                / totalWeight
-                / pool.totalBalance;
+            * pool.weight
+            * 1e18
+            / totalWeight
+            / pool.totalBalance;
         }
         return user.depositAmount * rewardRate / 1e18 - user.debt;
     }
 
-    function deposit(uint idx, uint amount) public payable {
+    function deposit(uint idx, uint amount) external payable {
         require(idx < rewardPools.length, "FON: pool");
 
         userInfo storage user = userInfos[msg.sender][idx];
@@ -175,7 +175,7 @@ contract Distributor {
         emit Deposit(msg.sender, idx, amount);
     }
 
-    function withdraw(uint idx, uint amount) public {
+    function withdraw(uint idx, uint amount) external {
         require(idx < rewardPools.length, "FON: pool");
 
         userInfo storage user = userInfos[msg.sender][idx];
@@ -212,8 +212,8 @@ contract Distributor {
         }
 
         uint rewardPerPool = rewardPerPeriod(pool.lastBlock, block.number)
-            * pool.weight
-            / totalWeight;
+        * pool.weight
+        / totalWeight;
 
         pool.rewardRate += rewardPerPool * 1e18 / pool.totalBalance;
         pool.lastBlock = currentBlock;
@@ -226,9 +226,9 @@ contract Distributor {
         update(idx);
 
         uint reward = user.depositAmount
-            * rewardPools[idx].rewardRate
-            / 1e18
-            - user.debt;
+        * rewardPools[idx].rewardRate
+        / 1e18
+        - user.debt;
 
         if(reward > 0) {
             uint rewardFee = reward * fon.stakeFeePercentage() / 1e18;

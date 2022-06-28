@@ -29,11 +29,11 @@ contract Stake is ERC20 {
         fon = IERC20(newFON);
     }
 
-    function stake(uint amount) public {
+    function stake(uint amount) external {
         uint totalBalance = fon.balanceOf(address(this));
         uint shares = totalBalance * totalSupply() == 0
-            ? amount
-            : amount * totalSupply() / totalBalance;
+        ? amount
+        : amount * totalSupply() / totalBalance;
 
         _mint(msg.sender, shares);
         fon.safeTransferFrom(msg.sender, address(this), amount);
@@ -41,7 +41,7 @@ contract Stake is ERC20 {
         emit Staked(msg.sender, amount, shares);
     }
 
-    function unstake(uint shares) public {
+    function unstake(uint shares) external {
         uint amount = shares * fon.balanceOf(address(this)) / totalSupply();
 
         _burn(msg.sender, shares);
