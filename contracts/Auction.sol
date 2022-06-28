@@ -3,13 +3,11 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IERC20.sol";
 import "./interfaces/IERC721.sol";
-import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
 
 contract Auction {
-    using SafeMath for uint;
     using SafeERC20 for IERC20;
 
     bytes4 internal constant ON_ERC721_RECEIVED = 0x150b7a02;
@@ -144,7 +142,7 @@ contract Auction {
         IERC20(address(fon)).safeTransferFrom(
             msg.sender,
             address(this),
-            bidAmount.sub(bidAmounts[msg.sender][auctionId])
+            bidAmount - bidAmounts[msg.sender][auctionId]
         );
 
         bidAmounts[msg.sender][auctionId] = bidAmount;
@@ -192,20 +190,16 @@ contract Auction {
         auctionInfo.beneficiaryClaimed = true;
 
         if(auctionInfo.highestBidder != address(0)) {
-            uint feeAmount = fon.auctionFeePercentage()
-            .mul(auctionInfo.highestBidAmount)
-            .div(1e18);
+            uint feeAmount = fon.auctionFeePercentage() * auctionInfo.highestBidAmount / 1e18;
             uint auctionMinterFeeAmount = fon.auctionMinters(auctionInfo.beneficiary)
-            ? fon.auctionMinterFeePercentage()
-            .mul(auctionInfo.highestBidAmount)
-            .div(1e18)
-            : 0;
+                ? fon.auctionMinterFeePercentage() * auctionInfo.highestBidAmount / 1e18
+                : 0;
 
             IERC20 iFON = IERC20(address(fon));
             iFON.safeTransfer(fon.stake(), feeAmount);
             iFON.safeTransfer(
                 msg.sender,
-                uint(auctionInfo.highestBidAmount).sub(feeAmount).sub(auctionMinterFeeAmount)
+                auctionInfo.highestBidAmount - feeAmount - auctionMinterFeeAmount
             );
             if(auctionMinterFeeAmount>0) {
                 iFON.safeTransfer(fon.receiver(), auctionMinterFeeAmount);

@@ -5,12 +5,10 @@ import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
 import "./interfaces/IERC721.sol";
 import "./FON20.sol";
-import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 
 contract FON721Maker {
     using SafeERC20 for IERC20;
-    using SafeMath for uint;
 
     IFON public fon;
 
@@ -84,9 +82,9 @@ contract FON721Maker {
             require(msg.value == fon.fon721Fee(), "FON: FON721 fee");
             uint totalHolderPercentage;
             for(uint i = 0; i<holders.length; i++) {
-                totalHolderPercentage = totalHolderPercentage.add(holderPercentages[i]);
+                totalHolderPercentage += holderPercentages[i];
             }
-            require(totalHolderPercentage.add(offeringPercentage) <= 1e18, "FON: holders");
+            require(totalHolderPercentage + offeringPercentage <= 1e18, "FON: holders");
         }
         uint newFON721TokenId;
         address newFON20;
@@ -96,7 +94,7 @@ contract FON721Maker {
             newFON721TokenId = iFON721.nextTokenId();
             iFON721.addNextTokenId(1);
             newFON20 = address(new FON20(name, symbol, totalSupply));
-            offeringAmount = totalSupply.mul(offeringPercentage).div(1e18);
+            offeringAmount = totalSupply * offeringPercentage / 1e18;
         }
         nftToFON20[nftAddress][tokenId] = newFON20;
         FON20ToNft[newFON20] = NFTInfo(
@@ -134,14 +132,14 @@ contract FON721Maker {
         NFTInfo storage nftInfo = FON20ToNft[fon20];
         require(block.number < nftInfo.endBlock, "FON: over");
 
-        uint receivingAmount = fonAmount.mul(1e18).div(nftInfo.offeringPrice);
+        uint receivingAmount = fonAmount * 1e18 / nftInfo.offeringPrice;
         if(receivingAmount > nftInfo.offeringAmount) {
-            fonAmount = uint(nftInfo.offeringAmount).mul(nftInfo.offeringPrice).div(1e18);
+            fonAmount = uint(nftInfo.offeringAmount) * nftInfo.offeringPrice / 1e18;
             receivingAmount = nftInfo.offeringAmount;
         }
         require(receivingAmount > 0, "FON: sold out");
 
-        nftInfo.offeringAmount = safe112(uint(nftInfo.offeringAmount).sub(receivingAmount));
+        nftInfo.offeringAmount -= safe112(receivingAmount);
         IERC20(address(fon)).safeTransferFrom(
             msg.sender,
             nftInfo.owner,
@@ -168,7 +166,7 @@ contract FON721Maker {
         for(uint i = 0; i < nftInfo.holders.length; i++) {
             iFON20.safeTransfer(
                 nftInfo.holders[i],
-                nftInfo.holderPercentages[i].mul(nftInfo.totalSupply).div(1e18)
+                nftInfo.holderPercentages[i] * nftInfo.totalSupply / 1e18
             );
         }
         iFON20.safeTransfer(nftInfo.owner, iFON20.balanceOf(address(this)));
@@ -177,7 +175,6 @@ contract FON721Maker {
         iFON721.mint(nftInfo.owner, nftInfo.fon721TokenId);
         iFON721.setIsShared(nftInfo.fon721TokenId);
         iFON721.setCanTransfer(nftInfo.fon721TokenId, address(0), address(0));
-
         nftInfo.totalSupply = 0;
 
         emit Claim(fon20);
@@ -190,10 +187,7 @@ contract FON721Maker {
     ) public {
         IERC20 iFON20 = IERC20(fon20);
         require(
-            iFON20.balanceOf(msg.sender) >=
-            iFON20.totalSupply()
-            .mul(fon.ownPercentage())
-            .div(1e18),
+            iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.ownPercentage() / 1e18,
             "FON: own"
         );
 
@@ -207,10 +201,7 @@ contract FON721Maker {
     function exit(address fon20) public {
         IERC20 iFON20 = IERC20(fon20);
         require(
-            iFON20.balanceOf(msg.sender) >=
-            iFON20.totalSupply()
-            .mul(fon.exitPercentage())
-            .div(1e18),
+            iFON20.balanceOf(msg.sender) >= iFON20.totalSupply() * fon.exitPercentage() / 1e18,
             "FON: exit"
         );
 

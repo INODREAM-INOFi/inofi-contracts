@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IERC20.sol";
-import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
 
 contract Ticket {
-    using SafeMath for uint;
     using SafeERC20 for IERC20;
 
     bytes4 internal constant ON_ERC721_RECEIVED = 0x150b7a02;
@@ -46,10 +44,10 @@ contract Ticket {
         uint nextTokenId = IFON721(fon.fon721()).nextTokenId();
         require(startTokenId == nextTokenId, "FON: not exact token id");
         uint[] memory tokenIds = new uint[](prices.length);
-        for(uint i = 0; i<prices.length; i++) {
+        for(uint i = 0; i < prices.length; i++) {
             require(prices[i] > 0, "FON: not correct price");
-            ticketPrices[ticketId][nextTokenId+i] = prices[i];
-            tokenIds[i] = nextTokenId+i;
+            ticketPrices[ticketId][nextTokenId + i] = prices[i];
+            tokenIds[i] = nextTokenId + i;
         }
         IFON721(fon.fon721()).addNextTokenId(prices.length);
 

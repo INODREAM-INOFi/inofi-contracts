@@ -2,12 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "./libraries/ERC20.sol";
-import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 
 contract Stake is ERC20 {
-    using SafeMath for uint;
     using SafeERC20 for IERC20;
 
     IERC20 public fon;
@@ -33,11 +31,9 @@ contract Stake is ERC20 {
 
     function stake(uint amount) public {
         uint totalBalance = fon.balanceOf(address(this));
-        uint shares = totalBalance.mul(totalSupply()) == 0
-        ? amount
-        : amount
-        .mul(totalSupply())
-        .div(totalBalance);
+        uint shares = totalBalance * totalSupply() == 0
+            ? amount
+            : amount * totalSupply() / totalBalance;
 
         _mint(msg.sender, shares);
         fon.safeTransferFrom(msg.sender, address(this), amount);
@@ -46,9 +42,7 @@ contract Stake is ERC20 {
     }
 
     function unstake(uint shares) public {
-        uint amount = shares
-        .mul(fon.balanceOf(address(this)))
-        .div(totalSupply());
+        uint amount = shares * fon.balanceOf(address(this)) / totalSupply();
 
         _burn(msg.sender, shares);
         fon.safeTransfer(msg.sender, amount);

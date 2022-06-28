@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IERC20.sol";
-import "./libraries/SafeMath.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IWETH.sol";
 
 contract Distributor {
-    using SafeMath for uint;
     using SafeERC20 for IERC20;
 
     address public weth;
@@ -79,12 +77,12 @@ contract Distributor {
         startBlock = newStartBlock;
         endBlock = newStartBlock*10*blocksPerYear;
 
-        for(uint i = 1; i<11; i++) {
-            tokenPerBlock[i-1] = distributingAmountsPerYear[i-1]/blocksPerYear;
+        for(uint i = 1; i < 11; i++) {
+            tokenPerBlock[i - 1] = distributingAmountsPerYear[i - 1] / blocksPerYear;
             totalAmountUntilBonus[i] = totalAmountUntilBonus[i - 1]
-            + tokenPerBlock[i - 1]
-            * blocksPerYear;
-            blocksPassed[i] = blocksPerYear*i;
+                + tokenPerBlock[i - 1]
+                * blocksPerYear;
+            blocksPassed[i] = blocksPerYear * i;
         }
     }
 
@@ -102,7 +100,7 @@ contract Distributor {
                 weight
             )
         );
-        totalWeight = totalWeight.add(weight);
+        totalWeight += weight;
         emit NewRewardPool(rewardPools.length - 1, token, weight);
     }
 
@@ -111,29 +109,24 @@ contract Distributor {
         for (uint i = 0; i < rewardPools.length; i++) {
             update(i);
         }
-        totalWeight = totalWeight
-        .sub(rewardPools[idx].weight)
-        .add(weight);
+        totalWeight = totalWeight - rewardPools[idx].weight + weight;
         rewardPools[idx].weight = weight;
 
         emit NewWeight(idx, weight);
     }
 
     function getTotalReward(uint blockNumber) internal view returns (uint) {
-        uint period = blockNumber.sub(startBlock);
-        uint periodIdx = period.div(blocksPerYear);
+        uint period = blockNumber - startBlock;
+        uint periodIdx = period / blocksPerYear;
         if(periodIdx > 10) periodIdx = 10;
 
         return totalAmountUntilBonus[periodIdx]
-        .add(
-            period
-            .sub(blocksPassed[periodIdx])
-            .mul(tokenPerBlock[periodIdx]));
+            + ((period - blocksPassed[periodIdx]) * tokenPerBlock[periodIdx]);
     }
 
     function rewardPerPeriod(uint fromBlock, uint toBlock) public view returns (uint) {
         return getTotalReward(getBlockInPeriod(toBlock))
-        .sub(getTotalReward(getBlockInPeriod(fromBlock)));
+            - getTotalReward(getBlockInPeriod(fromBlock));
     }
 
     function getBlockInPeriod(uint blockNumber) public view returns (uint) {
@@ -147,17 +140,13 @@ contract Distributor {
 
         uint rewardRate = pool.rewardRate;
         if (block.number > pool.lastBlock && pool.totalBalance != 0) {
-            rewardRate = rewardRate.add(
-                rewardPerPeriod(pool.lastBlock, block.number)
-                .mul(pool.weight)
-                .div(totalWeight)
-                .mul(1e18)
-                .div(pool.totalBalance));
+            rewardRate += rewardPerPeriod(pool.lastBlock, block.number)
+                * pool.weight
+                * 1e18
+                / totalWeight
+                / pool.totalBalance;
         }
-        return user.depositAmount
-        .mul(rewardRate)
-        .div(1e18)
-        .sub(user.debt);
+        return user.depositAmount * rewardRate / 1e18 - user.debt;
     }
 
     function deposit(uint idx, uint amount) public payable {
@@ -172,12 +161,9 @@ contract Distributor {
             update(idx);
         }
 
-        pool.totalBalance = pool.totalBalance.add(amount);
-
-        user.depositAmount = user.depositAmount.add(amount);
-        user.debt = user.depositAmount
-        .mul(pool.rewardRate)
-        .div(1e18);
+        pool.totalBalance += amount;
+        user.depositAmount += amount;
+        user.debt = user.depositAmount * pool.rewardRate / 1e18;
 
         if(pool.token == weth) {
             require(amount == msg.value, "FON: amount");
@@ -197,12 +183,9 @@ contract Distributor {
 
         claim(idx);
 
-        pool.totalBalance = pool.totalBalance.sub(amount);
-
-        user.depositAmount = user.depositAmount.sub(amount);
-        user.debt = user.depositAmount
-        .mul(pool.rewardRate)
-        .div(1e18);
+        pool.totalBalance -= amount;
+        user.depositAmount -= amount;
+        user.debt = user.depositAmount * pool.rewardRate / 1e18;
 
         if(pool.token == weth) {
             IWETH(weth).withdraw(amount);
@@ -221,9 +204,7 @@ contract Distributor {
             return;
         }
 
-        uint currentBlock = block.number >= endBlock
-        ? endBlock
-        : block.number;
+        uint currentBlock = block.number >= endBlock ? endBlock : block.number;
 
         if (pool.totalBalance == 0) {
             pool.lastBlock = currentBlock;
@@ -231,14 +212,10 @@ contract Distributor {
         }
 
         uint rewardPerPool = rewardPerPeriod(pool.lastBlock, block.number)
-        .mul(pool.weight)
-        .div(totalWeight);
+            * pool.weight
+            / totalWeight;
 
-        pool.rewardRate = pool.rewardRate
-        .add(rewardPerPool
-        .mul(1e18)
-        .div(pool.totalBalance));
-
+        pool.rewardRate += rewardPerPool * 1e18 / pool.totalBalance;
         pool.lastBlock = currentBlock;
     }
 
@@ -249,14 +226,14 @@ contract Distributor {
         update(idx);
 
         uint reward = user.depositAmount
-        .mul(rewardPools[idx].rewardRate)
-        .div(1e18)
-        .sub(user.debt);
+            * rewardPools[idx].rewardRate
+            / 1e18
+            - user.debt;
 
         if(reward > 0) {
-            uint rewardFee = reward.mul(fon.stakeFeePercentage()).div(1e18);
-            user.debt = reward.add(user.debt);
-            fon.mint(msg.sender, reward.sub(rewardFee));
+            uint rewardFee = reward * fon.stakeFeePercentage() / 1e18;
+            user.debt += reward;
+            fon.mint(msg.sender, reward - rewardFee);
             fon.mint(fon.stake(), rewardFee);
         }
 

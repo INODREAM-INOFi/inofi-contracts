@@ -2,11 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "./libraries/ERC20.sol";
-import "./libraries/SafeMath.sol";
 
 contract FON is ERC20 {
-    using SafeMath for uint;
-
     address public admin;
     address public receiver;
     address public fon721maker;
