@@ -9,13 +9,13 @@ import "./interfaces/IWETH.sol";
 contract Distributor {
     using SafeERC20 for IERC20;
 
-    address public weth;
+    address public immutable weth;
 
     IFON public fon;
 
-    uint public blocksPerYear;
-    uint public startBlock;
-    uint public endBlock;
+    uint public immutable blocksPerYear;
+    uint public immutable startBlock;
+    uint public immutable endBlock;
     uint public totalWeight;
 
     uint[11] public tokenPerBlock;
@@ -75,14 +75,14 @@ contract Distributor {
         weth = newWETH;
         blocksPerYear = newBlocksPerYear;
         startBlock = newStartBlock;
-        endBlock = newStartBlock*10*blocksPerYear;
+        endBlock = newStartBlock * 10 * newBlocksPerYear;
 
         for(uint i = 1; i < 11; i++) {
-            tokenPerBlock[i - 1] = distributingAmountsPerYear[i - 1] / blocksPerYear;
+            tokenPerBlock[i - 1] = distributingAmountsPerYear[i - 1] / newBlocksPerYear;
             totalAmountUntilBonus[i] = totalAmountUntilBonus[i - 1]
                 + tokenPerBlock[i - 1]
-                * blocksPerYear;
-            blocksPassed[i] = blocksPerYear * i;
+                * newBlocksPerYear;
+            blocksPassed[i] = newBlocksPerYear * i;
         }
     }
 
