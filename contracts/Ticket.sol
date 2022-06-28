@@ -5,8 +5,9 @@ import "./interfaces/IERC20.sol";
 import "./libraries/SafeERC20.sol";
 import "./interfaces/IFON.sol";
 import "./interfaces/IFON721.sol";
+import "./interfaces/IERC721Receiver.sol";
 
-contract Ticket {
+contract Ticket is IERC721Receiver {
     using SafeERC20 for IERC20;
 
     bytes4 internal constant ON_ERC721_RECEIVED = 0x150b7a02;
@@ -87,7 +88,7 @@ contract Ticket {
         address,
         uint256,
         bytes calldata
-    ) external returns (bytes4) {
+    ) external override returns (bytes4) {
         return ON_ERC721_RECEIVED;
     }
 }

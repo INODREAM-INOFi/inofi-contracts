@@ -6,8 +6,9 @@ import "./interfaces/IFON721.sol";
 import "./interfaces/IERC721.sol";
 import "./FON20.sol";
 import "./libraries/SafeERC20.sol";
+import "./interfaces/IERC721Receiver.sol";
 
-contract FON721Maker {
+contract FON721Maker is IERC721Receiver {
     using SafeERC20 for IERC20;
 
     IFON public fon;
@@ -248,7 +249,7 @@ contract FON721Maker {
         address,
         uint256,
         bytes calldata
-    ) external returns (bytes4) {
+    ) external override returns (bytes4) {
         return ON_ERC721_RECEIVED;
     }
 }
