@@ -24,6 +24,8 @@ contract FON721 is ERC721Enumerable {
         address indexed to,
         bool approved
     );
+    event NextTokenId(uint indexed tokenId);
+    event NewBaseURI(string baseURI);
 
     constructor(
         address newFON,
@@ -57,11 +59,13 @@ contract FON721 is ERC721Enumerable {
     function addNextTokenId(uint cnt) external {
         require(fon.minters(msg.sender), "FON: minter");
         nextTokenId += cnt;
+        emit NextTokenId(nextTokenId);
     }
 
     function setBaseURI(string memory newBaseURI) external {
         require(msg.sender == fon.admin(), "FON: admin");
         currentBaseURI = newBaseURI;
+        emit NewBaseURI(currentBaseURI);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
