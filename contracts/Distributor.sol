@@ -214,11 +214,11 @@ contract Distributor is ReentrancyGuard {
             return;
         }
 
-        uint rewardPerPool = rewardPerPeriod(pool.lastBlock, block.number)
+        pool.rewardRate += rewardPerPeriod(pool.lastBlock, block.number)
             * pool.weight
-            / totalWeight;
-
-        pool.rewardRate += rewardPerPool * 1e18 / pool.totalBalance;
+            * 1e18
+            / totalWeight
+            / pool.totalBalance;
         pool.lastBlock = currentBlock;
     }
 
